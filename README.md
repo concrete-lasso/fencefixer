@@ -1,4 +1,4 @@
-fencefixer
+# fencefixer
 
 This is a network testing tool that executes iPerf and ping tests and uploads the results to InfluxDB. This makes it easy to query and visualize your network stats with Grafana.
 
@@ -11,14 +11,16 @@ Metrics captured:
   - ICMP latency
 
 Required environment variables:
-- INFLUX_URL
-- INFLUX_ORG
-- INFLUX_BUCKET
-- INFLUX_TOKEN
-
+```bash
+INFLUX_URL=
+INFLUX_ORG=
+INFLUX_BUCKET=
+INFLUX_TOKEN=
+```
 Specify targets in your config.yaml file
 
 optional docker-compose.yml content:
+```bash
 services:
   fencefixer:
     image: ghcr.io/concrete-lasso/fencefixer:main
@@ -27,7 +29,7 @@ services:
       - .env
     volumes:
       - ./app/config.yaml:/app/config.yaml:ro
-
+```
 Notes:
 - Targets must be running iPerf server to execute the iPerf tests
 - Ensure your InfluxDB bucket is created before starting the container
