@@ -1,0 +1,17 @@
+interval: 60
+tests:
+  - name: "Google Ping Check"
+    protocol: "icmp"
+    host: "8.8.8.8"
+    count: 5
+  - name: "Example TCP Check"
+    protocol: "tcp"
+    host: "iperf-server-internal"
+    port: 5201
+    duration: 10
+  - name: "Example UDP Check"
+    protocol: "udp"
+    host: "iperf-server-internal"
+    port: 5201
+    duration: 10
+    bandwidth: 100M

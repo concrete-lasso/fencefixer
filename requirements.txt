@@ -1,0 +1,3 @@
+influxdb_client ~= 1.50
+pyyaml ~= 6.0
+ping3 ~= 5.1
