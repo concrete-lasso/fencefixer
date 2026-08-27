@@ -22,26 +22,8 @@ client = InfluxDBClient(url=URL, token=TOKEN, org=ORG)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
 def load_config():
-    """
-    Load and parse the YAML config file
-    Return parsed dict is successful, or None if syntax error occurs
-    """
-    if not os.path.exists((CONFIG_FILE)):
-        print(f"[CONFIG ERROR] Configuration file not found at {CONFIG_FILE}:")
-        return None
-
-    try:
-        with open(CONFIG_FILE) as f:
-            return yaml.safe_load(f)
-    except yaml.YAMLError as exc:
-        print("\n" + "="*60)
-        print("[CONFIG ERROR] Failed to parse config.yaml due to syntax error")
-        print(f"Details: {exc}")
-        print("="*60 + "\n")
-        return None
-    except Exception as e:
-        print(f"[CONFIG ERROR] Unexpected error loading config {e}")
-        return None
+    with open(CONFIG_FILE) as f:
+        return yaml.safe_load(f)
 
 def run_iperf_test(test):
     # Base command structure
@@ -127,7 +109,7 @@ def run_icmp_test(test):
             results.append(delay)
         else:
             print(f"Connection to {host} failed (timeout)")
-            results.append(400.0) # if ICMP times out, use 400ms as value to avoid type conflict in DB
+            results.append(400.0) # Match default timeout penalty of 400ms from your original code
             
     avg_delay = sum(results) / len(results)
     max_delay = max(results)
@@ -157,22 +139,15 @@ if __name__ == "__main__":
     while True:
         try:
             cfg = load_config()
-
-            # If config load failed, wait 10s and try again
-            if cfg is None:
-                print("Config loading failed. Retrying in 10 seconds...")
-                time.sleep(10)
-                continue
-            try:
-                for test in cfg.get("tests", []):
-                    protocol = test.get("protocol", "tcp").lower()
-                    if protocol == "icmp":
-                        run_icmp_test(test)
-                    else:
-                        run_iperf_test(test)
+            for test in cfg.get("tests", []):
+                protocol = test.get("protocol", "tcp").lower()
+                if protocol == "icmp":
+                    run_icmp_test(test)
+                else:
+                    run_iperf_test(test)
             
-                # Use general interval default of 60 seconds if not specified in config
-                time.sleep(cfg.get("interval", 60))
+            # Use general interval default of 60 seconds if not specified in config
+            time.sleep(cfg.get("interval", 60))
         except Exception as e:
             print(f"Global Loop Error: {e}")
             time.sleep(10) # Prevent tight CPU spin in case of continuous config parse failures
